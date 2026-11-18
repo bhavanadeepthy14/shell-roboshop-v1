@@ -60,7 +60,7 @@ validate $? "unzipping catalogue"
 npm install &>>$logs_file
 validate $? "installing nodejs dependencies" 
 
-sed -i "s/DOMAIN_NAME/$domain_name/" "$scripts_dir/catalogue.service"
+sed -i "s/DOMAIN_NAME/$domain_name/g" "$scripts_dir/catalogue.service"
 cp "$scripts_dir/catalogue.service" /etc/systemd/system/catalogue.service
 validate $? "copying catalogue systemd service file"
 
@@ -72,7 +72,7 @@ validate $? "enable and start catalogue service"
 cp "$scripts_dir/mongo.repo" /etc/yum.repos.d/mongo.repo
 validate $? "Adding Mongo repo"
 
-dnf install mongodb-mongosh -y
+dnf install mongodb-mongosh -y &>>$logs_file
 validate $? "installing mongodb client"
 
 
