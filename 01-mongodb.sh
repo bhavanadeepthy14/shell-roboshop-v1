@@ -26,12 +26,12 @@ echo "script started execution at $(date +"%F %T")" &>>$logs_file
     fi
 }
 
-cp mongodb.repo /etc/yum.repos.d/mongodb.repo 
+cp mongo.repo /etc/yum.repos.d/mongo.repo 
 validate $? "Adding mongo repo"
 
-dnf install mongodb-org -y
+dnf install mongodb-org -y &>>$logs_file
 validate $? "Install mongodb"
 
-systemctl enable mongod
-systemctl start mongod
+systemctl enable mongod &>>$logs_file
+systemctl start mongod &>>$logs_file
 validate $? "enable and start mongodb"
