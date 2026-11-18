@@ -57,8 +57,8 @@ cd /app
 unzip /tmp/catalogue.zip &>>$logs_file
 validate $? "unzipping catalogue"
 
-npm install
-validate $? "installing nodejs dependencies" &>>$logs_file
+npm install &>>$logs_file
+validate $? "installing nodejs dependencies" 
 
 sed -i "s/DOMAIN_NAME/$domain_name/" "$scripts_dir/catalogue.service"
 cp "$scripts_dir/catalogue.service" /etc/systemd/system/catalogue.service
