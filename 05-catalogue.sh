@@ -40,7 +40,7 @@ useradd --system --home /app --shell /sbin/nologin --comment "roboshop system us
 validate $? "creating roboshop system user"
 else
     echo -e "$(timestamp) [INFO] system user roboshop already exists....${Y}skipping${N}" 
-else
+fi
 
 echo "$(timestamp) [INFO] script completed in $SECONDS seconds" 
 echo "$(timestamp) [INFO] ===== script completed execution =====" | tee -a $logs_file
