@@ -3,6 +3,7 @@
 user_id=$(id -u)
 logs_folder="/var/log/shell-practice"
 logs_file="${logs_folder}/${0}.log"
+domain_name="daws99.store"
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
@@ -41,6 +42,27 @@ validate $? "creating roboshop system user"
 else
     echo -e "$(timestamp) [INFO] system user roboshop already exists....${Y}skipping${N}" 
 fi
+mkdir -p /app
+validate $? "creating app directory"
+
+curl -L -o /tmp/catalogue.zip https://raw.githubusercontent.com/daws-92s/roboshop-documentation/refs/heads/main/artifacts/catalogue-v4.zip &>>$logs_file
+validate $? "downloading catalogue"
+
+cd /app
+unzip /tmp/catalogue.zip &>>$logs_file
+validate $? "unzipping catalogue"
+
+npm install
+validate $? "installing nodejs dependencies" &>>$logs_file
+
+sed -i "s/DOMAIN_NAME/$domain_name/" catalogue.service
+cp catalogue.service /etc/systemd/system/catalogue.service
+validate $? "copying catalogue systemd service file"
+
+systemctl daemon-reload &>>$logs_file
+systemctl enable catalogue &>>$logs_file
+systemctl start catalogue &>>$logs_file
+validate $? "enable and start catalogue service"
 
 echo "$(timestamp) [INFO] script completed in $SECONDS seconds" 
 echo "$(timestamp) [INFO] ===== script completed execution =====" | tee -a $logs_file
