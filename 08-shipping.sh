@@ -77,17 +77,21 @@ validate $? "copying shipping systemd service file"
 dnf install mysql -y
 validate $? "installing mysql client"
 
-mysql -h "mysql.$domain_name" -uroot -pRoboShop@1 < /app/db/master-data.sql
-validate $? "loading shipping data"
+count=$(mysql -h "mysql.$domain_name" -u root -pRoboShop@1 -e "SELECT COUNT(*) FROM cities.cities;" 2>> $logs_file)
+if [ -z "$count" ] || [ "$count" -eq 0 ]; then
+    mysql -h "mysql.$domain_name" -uroot -pRoboShop@1 < /app/db/master-data.sql
+    validate $? "loading shipping data"
+else
+    echo -e "$(timestamp) [INFO] Master data already loaded....${Y}skipping${N}" 
+fi
 
+ mysql -h "mysql.$domain_name" -uroot -pRoboShop@1 < /app/db/app-user.sql
+ validate $? "creating App user"
 
 systemctl daemon-reload &>>$logs_file
 systemctl enable shipping &>>$logs_file
-systemctl start shipping &>>$logs_file
-validate $? "enable and start shipping service"
-
 systemctl restart shipping
-validate $? "restarting shipping"
+validate $? "restarting/starting shipping"
 
 
 echo "$(timestamp) [INFO] script completed in $SECONDS seconds" 
