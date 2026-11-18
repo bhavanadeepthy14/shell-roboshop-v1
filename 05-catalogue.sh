@@ -4,6 +4,7 @@ user_id=$(id -u)
 logs_folder="/var/log/shell-practice"
 logs_file="${logs_folder}/${0}.log"
 domain_name="daws99.store"
+scripts_dir=$(dirname "$(realpath "$0")")
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
@@ -42,6 +43,10 @@ validate $? "creating roboshop system user"
 else
     echo -e "$(timestamp) [INFO] system user roboshop already exists....${Y}skipping${N}" 
 fi
+
+rm -rf /app 
+validate $? "removing old code"
+
 mkdir -p /app
 validate $? "creating app directory"
 
@@ -55,14 +60,21 @@ validate $? "unzipping catalogue"
 npm install
 validate $? "installing nodejs dependencies" &>>$logs_file
 
-sed -i "s/DOMAIN_NAME/$domain_name/" catalogue.service
-cp catalogue.service /etc/systemd/system/catalogue.service
+sed -i "s/DOMAIN_NAME/$domain_name/" "$scripts_dir/catalogue.service"
+cp "$scripts_dir/catalogue.service" /etc/systemd/system/catalogue.service
 validate $? "copying catalogue systemd service file"
 
 systemctl daemon-reload &>>$logs_file
 systemctl enable catalogue &>>$logs_file
 systemctl start catalogue &>>$logs_file
 validate $? "enable and start catalogue service"
+
+cp "$scripts_dir/mongo.repo" /etc/yum.repos.d/mongo.repo
+validate $? "Adding Mongo repo"
+
+dnf install mongodb-mongosh -y
+validate $? "installing mongodb client"
+
 
 echo "$(timestamp) [INFO] script completed in $SECONDS seconds" 
 echo "$(timestamp) [INFO] ===== script completed execution =====" | tee -a $logs_file
